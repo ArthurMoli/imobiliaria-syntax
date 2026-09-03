@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto animate-fade-in">
+  <div class="card">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-primary mb-2">✏️ Editar Perfil</h1>
+      <p class="text-secondary">Atualize seus dados de contato</p>
+    </div>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- Erros gerais -->
+      {% if form.non_field_errors %}
+        <div class="alert-error">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Campos do formulário -->
+      {% for field in form %}
+        <div>
+          <label class="label" for="{{ field.id_for_label }}">
+            {{ field.label }}
+            {% if field.field.required %}<span class="text-accent">*</span>{% endif %}
+          </label>
+
+          {% if field.name == 'email' %}
+            <input type="email"
+                   name="{{ field.name }}"
+                   id="{{ field.id_for_label }}"
+                   class="field"
+                   placeholder="voce@exemplo.com"
+                   value="{{ field.value|default:'' }}"
+                   {% if field.field.required %}required{% endif %}>
+          {% elif field.name == 'telefone' %}
+            <input type="tel"
+                   name="{{ field.name }}"
+                   id="{{ field.id_for_label }}"
+                   class="field"
+                   placeholder="(48) 99999-9999"
+                   value="{{ field.value|default:'' }}"
+                   {% if field.field.required %}required{% endif %}>
+          {% else %}
+            <input type="text"
+                   name="{{ field.name }}"
+                   id="{{ field.id_for_label }}"
+                   class="field"
+                   placeholder="{{ field.field.widget.attrs.placeholder|default:field.label }}"
+                   value="{{ field.value|default:'' }}"
+                   {% if field.field.required %}required{% endif %}>
+          {% endif %}
+
+          {% if field.help_text %}
+            <p class="text-muted text-sm mt-1">{{ field.help_text }}</p>
+          {% endif %}
+
+          {% if field.errors %}
+            <div class="text-red-400 text-sm mt-1">
+              {% for error in field.errors %}
+                <p>❌ {{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <!-- Dados não editáveis -->
+      <div class="card-highlight">
+        <h3 class="text-lg font-semibold text-accent mb-4">🔒 Dados da Conta</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="label">Nome de Usuário</label>
+            <p class="text-primary font-medium">{{ user.username }}</p>
+          </div>
+          <div>
+            <label class="label">Tipo de Conta</label>
+            <p class="text-primary font-medium">
+              {% if user.perfil == 'CL' %}👥 Cliente{% else %}🏢 Corretor{% endif %}
+            </p>
+          </div>
+        </div>
+        <p class="text-muted text-sm mt-4">
+          Para alterar sua senha, use a
+          <a href="{% url 'password_change' %}" class="text-accent">página de troca de senha</a>.
+        </p>
+      </div>
+
+      <!-- Botões -->
+      <div class="flex gap-4 pt-4">
+        <button type="submit" class="btn-primary flex-1">💾 Salvar Alterações</button>
+        <a href="{% url 'users:profile_view' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+/* Garantir que todos os inputs tenham o estilo correto */
+.field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--bg-input);
+  border: 2px solid var(--border);
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+
+.field:focus {
+  background-color: var(--bg-secondary);
+  border-color: var(--accent-green);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  outline: none;
+}
+
+.field::placeholder {
+  color: var(--text-muted);
+}
+
+/* Estilo para campos obrigatórios */
+.label span {
+  color: var(--accent-green);
+}
+</style>
+
+{% endblock %}
